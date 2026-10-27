@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Granite State Gem — GC Command Center</title>
+<style>
+  :root{
+    --navy:#0b1f3a; --navy2:#122c52; --navy3:#1a3a68;
+    --gold:#c9a227; --gold-light:#e8c95a; --gold-soft:#f5ecd0;
+    --bg:#f2f3f5; --card:#ffffff; --ink:#1c2430; --muted:#667085;
+    --line:#dfe3ea; --green:#1a7f4b; --red:#b42318; --amber:#b54708;
+    --green-bg:#e6f4ec; --red-bg:#fdecea; --amber-bg:#fef3e2;
+    --radius:12px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+  header{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:20px 24px 16px;border-bottom:4px solid var(--gold)}
+  .header-row{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;justify-content:space-between;max-width:1200px;margin:0 auto}
+  h1{margin:0;font-size:26px;letter-spacing:.2px}
+  h1 .gem{color:var(--gold-light)}
+  .tagline{margin:4px 0 0;color:#cdd8ea;font-size:14px}
+  .tagline em{color:var(--gold-light);font-style:normal;font-weight:600}
+  .demo-badge{display:inline-block;background:var(--gold);color:var(--navy);font-weight:800;font-size:12px;letter-spacing:1.2px;padding:5px 12px;border-radius:999px;text-transform:uppercase}
+  .demo-note{max-width:1200px;margin:10px auto 0;color:#aebdd4;font-size:12.5px}
+  main{max-width:1200px;margin:0 auto;padding:20px 24px 48px}
+  .toolbar{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;display:flex;flex-wrap:wrap;gap:14px;align-items:end;justify-content:space-between}
+  .toolbar label{display:block;font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+  select,input[type="text"],input[type="password"],input[type="date"]{padding:9px 10px;border:1px solid var(--line);border-radius:8px;font-size:14px;background:#fff;color:var(--ink)}
+  .btn{border:0;border-radius:8px;padding:10px 16px;font-size:14px;font-weight:700;cursor:pointer}
+  .btn-gold{background:var(--gold);color:var(--navy)}
+  .btn-gold:hover{background:var(--gold-light)}
+  .btn-navy{background:var(--navy);color:#fff}
+  .btn-ghost{background:#fff;border:1px solid var(--line);color:var(--ink)}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .seg button{border:0;background:#fff;padding:9px 14px;font-size:14px;font-weight:600;cursor:pointer;color:var(--muted)}
+  .seg button.active{background:var(--navy);color:#fff}
+  .role-note{font-size:13px;color:var(--muted);margin:10px 2px 0}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin:18px 0}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
+  .stat .k{font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted)}
+  .stat .v{font-size:26px;font-weight:800;margin-top:4px;color:var(--navy)}
+  .stat .s{font-size:12.5px;color:var(--muted);margin-top:2px}
+  h2.section{font-size:17px;margin:22px 0 12px;color:var(--navy)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+  .project-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;cursor:pointer;text-align:left;width:100%;font:inherit}
+  .project-card:hover{border-color:var(--gold);box-shadow:0 4px 16px rgba(11,31,58,.10)}
+  .project-card.selected{border-color:var(--navy);box-shadow:0 0 0 2px var(--navy) inset}
+  .project-card h3{margin:0 0 4px;font-size:16px;color:var(--navy)}
+  .project-card .addr{font-size:13px;color:var(--muted)}
+  .project-card .client{font-size:13.5px;margin-top:6px}
+  .pill{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;letter-spacing:.4px}
+  .pill-progress{background:#e3ecfb;color:var(--navy3)}
+  .pill-starting{background:var(--gold-soft);color:#7a5c00}
+  .pill-finishing{background:var(--green-bg);color:var(--green)}
+  .bar{height:9px;background:#e7ebf0;border-radius:999px;overflow:hidden;margin:10px 0 6px}
+  .bar > span{display:block;height:100%;background:linear-gradient(90deg,var(--navy3),var(--gold))}
+  .card-meta{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted)}
+  .detail{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);margin-top:20px;overflow:hidden}
+  .detail-head{padding:18px 20px 0}
+  .detail-head h3{margin:0;font-size:20px;color:var(--navy)}
+  .detail-head .addr{color:var(--muted);font-size:13.5px;margin-top:3px}
+  .tabs{display:flex;gap:4px;border-bottom:2px solid var(--line);padding:14px 20px 0;flex-wrap:wrap}
+  .tabs button{border:0;background:none;padding:9px 14px;font-size:14.5px;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px}
+  .tabs button.active{color:var(--navy);border-bottom-color:var(--gold)}
+  .tab-body{padding:18px 20px 22px}
+  .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+  .kv{font-size:14px;line-height:1.55}
+  .kv b{color:var(--navy)}
+  .blocker{border:1px solid var(--line);border-left:5px solid var(--amber);border-radius:8px;padding:11px 13px;margin-bottom:10px;background:#fffdf7}
+  .blocker.high{border-left-color:var(--red);background:#fffafa}
+  .blocker .t{font-weight:700;font-size:14px}
+  .blocker .d{font-size:13px;color:#475467;margin-top:2px}
+  .blocker .m{font-size:12px;color:var(--muted);margin-top:5px}
+  .sev{font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase}
+  .sev-high{color:var(--red)} .sev-med{color:var(--amber)} .sev-low{color:var(--green)}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th{text-align:left;font-size:11px;letter-spacing:.7px;text-transform:uppercase;color:var(--muted);padding:8px 8px;border-bottom:2px solid var(--line)}
+  td{padding:9px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .over{color:var(--red);font-weight:700} .under{color:var(--green);font-weight:700}
+  .totals{display:flex;flex-wrap:wrap;gap:12px;margin-top:16px}
+  .total-box{background:var(--bg);border-radius:10px;padding:12px 16px;min-width:160px}
+  .total-box .k{font-size:11px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--muted)}
+  .total-box .v{font-size:19px;font-weight:800;color:var(--navy);margin-top:2px}
+  .sched{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);align-items:flex-start}
+  .sched .date{min-width:86px;font-weight:800;color:var(--navy);font-size:13.5px}
+  .sched .what{flex:1}
+  .sched .what .t{font-weight:700;font-size:14.5px}
+  .sched .what .d{font-size:13px;color:#475467}
+  .status{font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;padding:3px 8px;border-radius:999px;white-space:nowrap}
+  .st-done{background:var(--green-bg);color:var(--green)}
+  .st-booked{background:#e3ecfb;color:var(--navy3)}
+  .st-pending{background:var(--amber-bg);color:var(--amber)}
+  .st-delayed{background:var(--red-bg);color:var(--red)}
+  .team li{margin-bottom:7px;font-size:14px}
+  .hidden{display:none !important}
+  .gate{max-width:520px;margin:26px auto;background:var(--card);border:1px solid var(--line);border-top:5px solid var(--gold);border-radius:var(--radius);padding:26px;text-align:center}
+  .gate h3{margin:0 0 6px;color:var(--navy);font-size:20px}
+  .gate p{color:var(--muted);font-size:14px;line-height:1.55}
+  .gate input{width:100%;text-align:center;font-size:18px;letter-spacing:3px;margin:10px 0}
+  .gate .err{color:var(--red);font-size:13px;min-height:18px}
+  .code-hint{background:var(--gold-soft);border:1px dashed var(--gold);border-radius:8px;padding:10px;font-size:13.5px;margin-top:12px}
+  .code-hint code{font-weight:800;font-size:15px}
+  .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:12px 0}
+  .readonly-banner{background:var(--gold-soft);border:1px solid var(--gold);color:#6b5400;border-radius:8px;padding:10px 14px;font-size:13.5px;margin-bottom:14px}
+  footer{max-width:1200px;margin:0 auto;padding:0 24px 36px;color:var(--muted);font-size:12.5px;line-height:1.6}
+  .updates li{margin-bottom:8px;font-size:14px}
+  .updates .when{color:var(--muted);font-size:12.5px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-row">
+    <div>
+      <h1>Granite State Gem <span class="gem">— GC Command Center</span></h1>
+      <p class="tagline">Every active project, at a glance. &nbsp;·&nbsp; <em>Intelligence by Subtraction</em></p>
+    </div>
+    <span class="demo-badge">Demo</span>
+  </div>
+</header>
+
+<main id="appMain">
+  <div class="toolbar">
+    <div>
+      <label for="roleSelect">Viewing as role</label>
+      <select id="roleSelect">
+        <option value="owner">Owner</option>
+        <option value="gc" selected>GC (General Contractor)</option>
+        <option value="admin">Admin</option>
+        <option value="homeowner">Homeowner / Client</option>
+        <option value="sub">Subcontractor</option>
+        <option value="vendor">Vendor</option>
+      </select>
+    </div>
+    <div>
+      <label>View</label>
+      <div class="seg" role="group" aria-label="View mode">
+        <button id="viewContractor" class="active" type="button">Contractor view</button>
+        <button id="viewClient" type="button">Client view</button>
+      </div>
+    </div>
+    <div>
+      <button id="publicModeBtn" class="btn btn-gold" type="button">Public client mode</button>
+      <button id="newProjectBtn" class="btn btn-navy" type="button">+ New project</button>
+    </div>
+  </div>
+  <p class="role-note" id="roleNote"></p>
+
+  <section class="stats" id="statsRow" aria-label="Portfolio summary"></section>
+
+  <h2 class="section" id="projectListTitle">Projects</h2>
+  <section class="grid" id="projectGrid"></section>
+
+  <section class="detail" id="detailPanel">
+    <div class="detail-head">
+      <h3 id="detailTitle"></h3>
+      <div class="addr" id="detailSub"></div>
+    </div>
+    <div class="tabs" id="tabBar">
+      <button data-tab="overview" class="active" type="button">Overview</button>
+      <button data-tab="budget" type="button" id="budgetTabBtn">Budget</button>
+      <button data-tab="schedule" type="button">Schedule</button>
+    </div>
+    <div class="tab-body" id="tabBody"></div>
+  </section>
+</main>
+
+<main id="publicMain" class="hidden">
+  <div id="gateBox" class="gate">
+    <h3>Public Client Mode</h3>
+    <p>Clients can follow their project here — no account needed. Enter the project passcode your contractor gave you to continue.</p>
+    <input type="password" id="passcodeInput" placeholder="Passcode" autocomplete="off">
+    <div class="err" id="gateError"></div>
+    <button id="gateSubmit" class="btn btn-gold" type="button" style="width:100%">View my project</button>
+    <div class="code-hint">Preview passcode: <code>GEM2026</code></div>
+    <p style="margin-top:16px"><button id="gateBack" class="btn btn-ghost" type="button">Back to Command Center</button></p>
+  </div>
+  <div id="publicProject" class="hidden"></div>
+</main>
+
+<footer>
+  Granite State Gem — GC Command Center · Subtract Architect Studios · “Intelligence by Subtraction”
+</footer>
+
+<script>
+"use strict";
+
+/* ---------- CLEAN DEMO DATA (sample data only — no real clients) ---------- */
+var PROJECTS = [
+  {
+    id: "maple-kitchen",
+    name: "Maple Street Kitchen Remodel",
+    client: "Sarah & Tom Henderson",
+    clientProject: true,
+    address: "42 Maple Street, Concord, NH 03301",
+    town: "Concord",
+    status: "In Progress",
+    statusClass: "pill-progress",
+    phase: "Cabinetry & Countertops",
+    progress: 62,
+    start: "Sep 14, 2026",
+    target: "Dec 11, 2026",
+    contract: 87500,
+    description: "Full kitchen renovation in a 1968 colonial: wall removal between kitchen and dining room, new shaker cabinetry, quartz countertops, LVP flooring, recessed lighting, and a coffee bar nook. Homeowners are living on site with a temporary kitchen in the mudroom.",
+    team: [
+      { name: "Mike Donovan", role: "GC / Project Lead", company: "Granite State Gem" },
+      { name: "Sarah & Tom Henderson", role: "Homeowner", company: "Client" },
+      { name: "Dana Whitcomb", role: "Electrician", company: "Whitcomb Electric, Bow NH" },
+      { name: "Ray Pelletier", role: "Plumber", company: "Pelletier Plumbing, Concord NH" },
+      { name: "Granite State Countertops", role: "Vendor — Stone", company: "Pembroke, NH" }
+    ],
+    blockers: [
+      { title: "Granite slab delayed at the fabricator", detail: "The selected quartz slab is held at the distributor; templating is rescheduled and install moves with it. Cabinet install continues in the meantime.", severity: "High", owner: "Granite State Countertops", age: "4 days" },
+      { title: "Permit amendment for removed wall", detail: "City of Concord asked for the engineer's letter on the LVL beam before final sign-off on the wall removal. Letter requested from the structural engineer.", severity: "Medium", owner: "Mike Donovan (GC)", age: "2 days" }
+    ],
+    budgetItems: [
+      { category: "Demolition & disposal", vendor: "Granite State Gem crew", budgeted: 4200, spent: 3950 },
+      { category: "Framing & structural (LVL beam)", vendor: "Granite State Gem crew", budgeted: 7800, spent: 8100 },
+      { category: "Cabinetry", vendor: "Merrimack Valley Cabinets", budgeted: 24500, spent: 23800 },
+      { category: "Countertops (quartz)", vendor: "Granite State Countertops", budgeted: 8900, spent: 0 },
+      { category: "Electrical", vendor: "Whitcomb Electric", budgeted: 9600, spent: 7200 },
+      { category: "Plumbing", vendor: "Pelletier Plumbing", budgeted: 8400, spent: 6100 },
+      { category: "Flooring (LVP)", vendor: "Capital Flooring, Concord", budgeted: 7300, spent: 6900 },
+      { category: "Appliances", vendor: "Baron's Major Brands", budgeted: 10800, spent: 10450 },
+      { category: "Paint & finish", vendor: "Granite State Gem crew", budgeted: 3600, spent: 900 },
+      { category: "Contingency", vendor: "—", budgeted: 2400, spent: 0 }
+    ],
+    schedule: [
+      { date: "2026-10-19", time: "8:00 AM", trade: "Electrical", vendor: "Whitcomb Electric", task: "Rough-in inspection — passed", status: "Done" },
+      { date: "2026-10-23", time: "8:00 AM", trade: "Cabinetry", vendor: "Merrimack Valley Cabinets", task: "Cabinet install, day 1 of 2", status: "Done" },
+      { date: "2026-10-27", time: "9:00 AM", trade: "Flooring", vendor: "Capital Flooring", task: "LVP install — kitchen and dining", status: "Booked" },
+      { date: "2026-10-29", time: "10:00 AM", trade: "Countertops", vendor: "Granite State Countertops", task: "Template for quartz counters (moved — slab delayed)", status: "Delayed" },
+      { date: "2026-11-03", time: "8:00 AM", trade: "Plumbing", vendor: "Pelletier Plumbing", task: "Sink, dishwasher, and pot-filler hookup", status: "Booked" },
+      { date: "2026-11-06", time: "9:00 AM", trade: "Paint", vendor: "Granite State Gem crew", task: "Prime and first coat — kitchen and dining", status: "Pending" }
+    ],
+    updates: [
+      { when: "Oct 24, 2026", text: "Cabinets are in and level — doors and hardware go on after counters are templated." },
+      { when: "Oct 21, 2026", text: "Electrical rough-in passed inspection with no corrections." },
+      { when: "Oct 16, 2026", text: "Photos uploaded: framing and LVL beam install (6 photos)." }
+    ]
+  },
+  {
+    id: "winnipesaukee-deck",
+    name: "Lakeside Deck & Outdoor Living",
+    client: "The Ouellette Family",
+    clientProject: false,
+    address: "18 Sunset Point Road, Meredith, NH 03253",
+    town: "Meredith",
+    status: "In Progress",
+    statusClass: "pill-progress",
+    phase: "Framing",
+    progress: 38,
+    start: "Oct 5, 2026",
+    target: "Nov 25, 2026",
+    contract: 64200,
+    description: "Demolition of a failing pressure-treated deck and build of a 480 sq ft composite deck with aluminum railings, a pergola section, low-voltage step lighting, and a storage bench. Shoreland permit approved by the Town of Meredith.",
+    team: [
+      { name: "Mike Donovan", role: "GC / Project Lead", company: "Granite State Gem" },
+      { name: "The Ouellette Family", role: "Homeowner", company: "Client" },
+      { name: "Chris Beaulieu", role: "Carpenter (Sub)", company: "Beaulieu Carpentry, Laconia NH" },
+      { name: "Lakes Region Electric", role: "Electrician", company: "Gilford, NH" }
+    ],
+    blockers: [
+      { title: "Composite decking shipment split", detail: "Main color boards arrived; the border color is on a second truck due Thursday. Framing continues so decking can start the day it lands.", severity: "Medium", owner: "Supplier — Gilford Home Center", age: "3 days" }
+    ],
+    budgetItems: [
+      { category: "Demo & disposal of old deck", vendor: "Granite State Gem crew", budgeted: 3800, spent: 3600 },
+      { category: "Footings & concrete piers", vendor: "Lakes Concrete, Meredith", budgeted: 6200, spent: 6450 },
+      { category: "Framing lumber & hardware", vendor: "Gilford Home Center", budgeted: 11800, spent: 10900 },
+      { category: "Composite decking & railing", vendor: "Gilford Home Center", budgeted: 22400, spent: 15800 },
+      { category: "Pergola kit & install", vendor: "Beaulieu Carpentry", budgeted: 8900, spent: 1200 },
+      { category: "Electrical & step lighting", vendor: "Lakes Region Electric", budgeted: 5400, spent: 0 },
+      { category: "Labor — carpentry sub", vendor: "Beaulieu Carpentry", budgeted: 5700, spent: 2800 }
+    ],
+    schedule: [
+      { date: "2026-10-20", time: "7:30 AM", trade: "Concrete", vendor: "Lakes Concrete", task: "Pour deck footings — complete", status: "Done" },
+      { date: "2026-10-26", time: "8:00 AM", trade: "Carpentry", vendor: "Beaulieu Carpentry", task: "Ledger, rim joists, and stair stringers", status: "Booked" },
+      { date: "2026-10-30", time: "8:00 AM", trade: "Carpentry", vendor: "Beaulieu Carpentry", task: "Start composite decking (border color delivery due Oct 29)", status: "Pending" },
+      { date: "2026-11-09", time: "9:00 AM", trade: "Electrical", vendor: "Lakes Region Electric", task: "Low-voltage step and post lighting rough-in", status: "Pending" }
+    ],
+    updates: [
+      { when: "Oct 22, 2026", text: "Footings passed inspection; framing started two days ahead of plan." },
+      { when: "Oct 12, 2026", text: "Old deck removed in one day; photos uploaded (4 photos)." }
+    ]
+  },
+  {
+    id: "portsmouth-addition",
+    name: "Historic Colonial Primary Suite Addition",
+    client: "Ellen Marsh",
+    clientProject: false,
+    address: "227 Middle Street, Portsmouth, NH 03801",
+    town: "Portsmouth",
+    status: "Starting Soon",
+    statusClass: "pill-starting",
+    phase: "Permits & Site Prep",
+    progress: 12,
+    start: "Nov 2, 2026",
+    target: "Apr 16, 2027",
+    contract: 285000,
+    description: "Two-story, 640 sq ft addition on an 1890 colonial in the Portsmouth historic district: primary suite with walk-in closet upstairs, mudroom and half bath below. Historic District Commission approval received; design matches existing clapboard, trim, and roof pitch.",
+    team: [
+      { name: "Mike Donovan", role: "GC / Project Lead", company: "Granite State Gem" },
+      { name: "Ellen Marsh", role: "Homeowner", company: "Client" },
+      { name: "Seacoast Design Group", role: "Architect", company: "Portsmouth, NH" },
+      { name: "Harbor Excavation", role: "Site Work (Sub)", company: "Kittery, ME" }
+    ],
+    blockers: [
+      { title: "Foundation start waits on utility locate", detail: "Dig Safe marking for the gas line is scheduled before excavation can begin. No digging until all utilities are marked.", severity: "Low", owner: "Harbor Excavation", age: "1 day" }
+    ],
+    budgetItems: [
+      { category: "Design, permits & HDC review", vendor: "Seacoast Design Group", budgeted: 14500, spent: 14200 },
+      { category: "Site work & excavation", vendor: "Harbor Excavation", budgeted: 19800, spent: 2500 },
+      { category: "Foundation", vendor: "Seacoast Concrete", budgeted: 26400, spent: 0 },
+      { category: "Framing & roofing", vendor: "Granite State Gem crew", budgeted: 68500, spent: 0 },
+      { category: "Siding & exterior trim", vendor: "Granite State Gem crew", budgeted: 28900, spent: 0 },
+      { category: "Electrical", vendor: "Seacoast Electric", budgeted: 18400, spent: 0 },
+      { category: "Plumbing & HVAC", vendor: "Harbor Mechanical", budgeted: 32700, spent: 0 },
+      { category: "Interior finishes & bath", vendor: "Various", budgeted: 57800, spent: 0 },
+      { category: "Contingency", vendor: "—", budgeted: 18000, spent: 0 }
+    ],
+    schedule: [
+      { date: "2026-10-28", time: "9:00 AM", trade: "Site Work", vendor: "Harbor Excavation", task: "Utility locate (Dig Safe) and site marking", status: "Booked" },
+      { date: "2026-11-02", time: "7:30 AM", trade: "Site Work", vendor: "Harbor Excavation", task: "Excavation for foundation", status: "Pending" },
+      { date: "2026-11-10", time: "8:00 AM", trade: "Concrete", vendor: "Seacoast Concrete", task: "Footings and foundation walls", status: "Pending" }
+    ],
+    updates: [
+      { when: "Oct 20, 2026", text: "Historic District Commission approval received — project cleared to permit." },
+      { when: "Oct 9, 2026", text: "Final drawings signed off by homeowner." }
+    ]
+  },
+  {
+    id: "keene-bath",
+    name: "Main Street Bathroom Renovation",
+    client: "David & Priya Nair",
+    clientProject: false,
+    address: "311 Main Street, Keene, NH 03431",
+    town: "Keene",
+    status: "Finishing",
+    statusClass: "pill-finishing",
+    phase: "Final Fixtures & Punch List",
+    progress: 91,
+    start: "Sep 28, 2026",
+    target: "Nov 6, 2026",
+    contract: 48750,
+    description: "Complete gut renovation of a 55 sq ft hall bathroom: walk-in tiled shower with bench, heated floor, new vanity with quartz top, and water-saving fixtures. One-bath home, so the schedule was compressed and a portable wash station was set up in the garage.",
+    team: [
+      { name: "Mike Donovan", role: "GC / Project Lead", company: "Granite State Gem" },
+      { name: "David & Priya Nair", role: "Homeowner", company: "Client" },
+      { name: "Monadnock Tile & Stone", role: "Tile (Sub)", company: "Keene, NH" },
+      { name: "Pelletier Plumbing", role: "Plumber", company: "Concord NH — Keene crew" }
+    ],
+    blockers: [
+      { title: "Vanity mirror back-ordered", detail: "The specified lighted mirror is back-ordered one week. Temporary mirror installed so the bathroom is fully usable; swap takes 20 minutes when it arrives.", severity: "Low", owner: "Vendor — Keene Lighting", age: "5 days" }
+    ],
+    budgetItems: [
+      { category: "Demo & disposal", vendor: "Granite State Gem crew", budgeted: 2600, spent: 2450 },
+      { category: "Plumbing rough & finish", vendor: "Pelletier Plumbing", budgeted: 8900, spent: 8600 },
+      { category: "Tile & waterproofing", vendor: "Monadnock Tile & Stone", budgeted: 12400, spent: 12100 },
+      { category: "Heated floor system", vendor: "Monadnock Tile & Stone", budgeted: 3100, spent: 3050 },
+      { category: "Vanity, top & fixtures", vendor: "Keene Lighting / supply house", budgeted: 9800, spent: 9350 },
+      { category: "Electrical & fan", vendor: "Whitcomb Electric", budgeted: 4200, spent: 3900 },
+      { category: "Paint & finish", vendor: "Granite State Gem crew", budgeted: 2950, spent: 2600 },
+      { category: "Contingency", vendor: "—", budgeted: 4800, spent: 1500 }
+    ],
+    schedule: [
+      { date: "2026-10-24", time: "8:00 AM", trade: "Tile", vendor: "Monadnock Tile & Stone", task: "Grout and seal shower — complete", status: "Done" },
+      { date: "2026-10-28", time: "9:00 AM", trade: "Plumbing", vendor: "Pelletier Plumbing", task: "Final fixture trim-out", status: "Booked" },
+      { date: "2026-10-30", time: "10:00 AM", trade: "GC", vendor: "Granite State Gem", task: "Punch-list walkthrough with homeowners", status: "Booked" },
+      { date: "2026-11-06", time: "9:00 AM", trade: "Electrical", vendor: "Keene Lighting (vendor)", task: "Lighted mirror install (pending delivery)", status: "Pending" }
+    ],
+    updates: [
+      { when: "Oct 24, 2026", text: "Shower grouted and sealed — 48-hour cure before first use." },
+      { when: "Oct 18, 2026", text: "Heated floor tested and warming evenly." }
+    ]
+  }
+];
+
+/* ---------- STATE & ROLE RULES ---------- */
+var state = { role: "gc", view: "contractor", selectedId: "maple-kitchen", tab: "overview" };
+
+var ROLE_INFO = {
+  owner:     { label: "Owner", canEdit: true, seeBudget: true, seeAll: true, note: "Owner: full portfolio view — all projects, full budgets, blockers, and scheduling." },
+  gc:        { label: "GC", canEdit: true, seeBudget: true, seeAll: true, note: "GC: full working view — all projects, budgets, blockers, team, and the Schedule-a-Trade tool." },
+  admin:     { label: "Admin", canEdit: true, seeBudget: true, seeAll: true, note: "Admin: full view, same as GC, plus office and record-keeping access." },
+  homeowner: { label: "Homeowner / Client", canEdit: false, seeBudget: "summary", seeAll: false, note: "Homeowner view is read-only and limited to your own project (Maple Street Kitchen Remodel). You see progress, schedule, and a budget summary — not internal notes, vendor costs, or other clients' projects." },
+  sub:       { label: "Subcontractor", canEdit: false, seeBudget: false, seeAll: true, note: "Subcontractor view is read-only: project overviews and the schedule, so you can plan crews. Budget details are not shown to subs." },
+  vendor:    { label: "Vendor", canEdit: false, seeBudget: false, seeAll: true, note: "Vendor view is read-only: delivery and install dates on the schedule, plus project locations. Budget details are not shown to vendors." }
+};
+
+function role() { return ROLE_INFO[state.role]; }
+function money(n) { return "$" + n.toLocaleString("en-US"); }
+function budgetTotals(p) {
+  var b = 0, s = 0;
+  p.budgetItems.forEach(function (i) { b += i.budgeted; s += i.spent; });
+  return { budgeted: b, spent: s, remaining: b - s, variance: s - b };
+}
+function visibleProjects() {
+  if (role().seeAll) return PROJECTS;
+  return PROJECTS.filter(function (p) { return p.clientProject; });
+}
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, function (c) {
+    return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+  });
+}
+
+/* ---------- RENDER: STATS + PROJECT LIST ---------- */
+function renderStats() {
+  var list = visibleProjects();
+  var totalContract = 0, blockers = 0, upcoming = 0;
+  list.forEach(function (p) {
+    totalContract += p.contract;
+    blockers += p.blockers.length;
+    p.schedule.forEach(function (s) { if (s.status === "Booked" || s.status === "Pending") upcoming += 1; });
+  });
+  var html = "";
+  html += '<div class="stat"><div class="k">Active projects</div><div class="v">' + list.length + '</div><div class="s">Across New Hampshire</div></div>';
+  html += '<div class="stat"><div class="k">Contract value shown</div><div class="v">' + money(totalContract) + '</div><div class="s">Across shown projects</div></div>';
+  html += '<div class="stat"><div class="k">Open blockers</div><div class="v">' + blockers + '</div><div class="s">Needing attention</div></div>';
+  html += '<div class="stat"><div class="k">Upcoming schedule items</div><div class="v">' + upcoming + '</div><div class="s">Booked or pending</div></div>';
+  document.getElementById("statsRow").innerHTML = html;
+}
+
+function renderProjects() {
+  var list = visibleProjects();
+  if (list.length && !list.some(function (p) { return p.id === state.selectedId; })) {
+    state.selectedId = list[0].id;
+  }
+  document.getElementById("projectListTitle").textContent =
+    state.view === "client" || state.role === "homeowner" ? "Your project" : "Projects";
+  var html = "";
+  list.forEach(function (p) {
+    var t = budgetTotals(p);
+    html += '<button type="button" class="project-card' + (p.id === state.selectedId ? " selected" : "") + '" data-project="' + p.id + '">';
+    html += "<h3>" + esc(p.name) + "</h3>";
+    html += '<div class="addr">' + esc(p.address) + "</div>";
+    html += '<div class="client">Client: ' + esc(p.client) + "</div>";
+    html += '<div style="margin-top:8px"><span class="pill ' + p.statusClass + '">' + esc(p.status) + "</span></div>";
+    html += '<div class="bar"><span style="width:' + p.progress + '%"></span></div>';
+    html += '<div class="card-meta"><span>' + p.progress + "% complete · " + esc(p.phase) + '</span><span>' + p.blockers.length + " blocker" + (p.blockers.length === 1 ? "" : "s") + "</span></div>";
+    if (role().seeBudget === true) {
+      html += '<div class="card-meta" style="margin-top:4px"><span>Contract ' + money(p.contract) + '</span><span>Spent ' + money(t.spent) + "</span></div>";
+    } else if (role().seeBudget === "summary") {
+      html += '<div class="card-meta" style="margin-top:4px"><span>Contract ' + money(p.contract) + "</span><span>On track</span></div>";
+    }
+    html += "</button>";
+  });
+  document.getElementById("projectGrid").innerHTML = html;
+  var cards = document.querySelectorAll("[data-project]");
+  for (var i = 0; i < cards.length; i++) {
+    cards[i].addEventListener("click", function () {
+      state.selectedId = this.getAttribute("data-project");
+      state.tab = "overview";
+      renderAll();
+    });
+  }
+}
+
+/* ---------- RENDER: DETAIL TABS ---------- */
+function currentProject() {
+  var list = visibleProjects();
+  for (var i = 0; i < list.length; i++) if (list[i].id === state.selectedId) return list[i];
+  return list[0];
+}
+
+function renderDetail() {
+  var p = currentProject();
+  if (!p) { document.getElementById("detailPanel").classList.add("hidden"); return; }
+  document.getElementById("detailPanel").classList.remove("hidden");
+  document.getElementById("detailTitle").textContent = p.name;
+  document.getElementById("detailSub").textContent =
+    p.address + " · Client: " + p.client + " · " + p.start + " → " + p.target + " · Phase: " + p.phase;
+  document.getElementById("budgetTabBtn").style.display = role().seeBudget ? "" : "none";
+  if (!role().seeBudget && state.tab === "budget") state.tab = "overview";
+  var tabs = document.querySelectorAll("#tabBar button");
+  for (var i = 0; i < tabs.length; i++) {
+    tabs[i].classList.toggle("active", tabs[i].getAttribute("data-tab") === state.tab);
+  }
+  var body = document.getElementById("tabBody");
+  if (state.tab === "budget") body.innerHTML = budgetHTML(p);
+  else if (state.tab === "schedule") body.innerHTML = scheduleHTML(p);
+  else body.innerHTML = overviewHTML(p);
+  wireScheduleForm(p);
+}
+
+function readOnlyBanner() {
+  if (role().canEdit) return "";
+  return '<div class="readonly-banner">Read-only — the ' + esc(role().label) + " view cannot make changes. Switch role above to see the contractor's working view.</div>";
+}
+
+function overviewHTML(p) {
+  var html = readOnlyBanner();
+  html += '<div class="cols"><div>';
+  html += '<div class="bar" style="height:12px"><span style="width:' + p.progress + '%"></span></div>';
+  html += '<p class="kv"><b>' + p.progress + '% complete</b> · Target finish: <b>' + esc(p.target) + "</b></p>";
+  html += '<p class="kv">' + esc(p.description) + "</p>";
+  html += '<p class="kv">Contract: <b>' + money(p.contract) + "</b></p>";
+  html += "</div><div>";
+  html += "<h4 style='margin:0 0 10px;color:var(--navy)'>Project team</h4><ul class='team' style='list-style:none;padding:0;margin:0'>";
+  p.team.forEach(function (m) {
+    html += "<li><b>" + esc(m.name) + "</b> — " + esc(m.role) + '<br><span style="color:var(--muted);font-size:12.5px">' + esc(m.company) + "</span></li>";
+  });
+  html += "</ul></div></div>";
+  html += "<h4 style='margin:20px 0 10px;color:var(--navy)'>Blockers (" + p.blockers.length + ")</h4>";
+  if (!p.blockers.length) html += '<p class="kv">No open blockers. Clear road ahead.</p>';
+  p.blockers.forEach(function (b) {
+    html += '<div class="blocker' + (b.severity === "High" ? " high" : "") + '">';
+    html += '<div class="t">' + esc(b.title) + ' &nbsp;<span class="sev sev-' + (b.severity === "High" ? "high" : b.severity === "Medium" ? "med" : "low") + '">' + esc(b.severity) + "</span></div>";
+    html += '<div class="d">' + esc(b.detail) + "</div>";
+    html += '<div class="m">Owner: ' + esc(b.owner) + " · Open " + esc(b.age) + "</div></div>";
+  });
+  html += "<h4 style='margin:20px 0 10px;color:var(--navy)'>Recent updates</h4><ul class='updates' style='padding-left:18px;margin:0'>";
+  p.updates.forEach(function (u) {
+    html += "<li>" + esc(u.text) + ' <span class="when">— ' + esc(u.when) + "</span></li>";
+  });
+  html += "</ul>";
+  return html;
+}
+
+function budgetHTML(p) {
+  var t = budgetTotals(p);
+  var html = readOnlyBanner();
+  if (role().seeBudget === "summary") {
+    html += '<p class="kv">Budget summary for homeowners — full vendor line items are internal and not shown in this view.</p>';
+    html += '<div class="totals">';
+    html += '<div class="total-box"><div class="k">Contract total</div><div class="v">' + money(p.contract) + "</div></div>";
+    html += '<div class="total-box"><div class="k">Work completed to date</div><div class="v">' + p.progress + "%</div></div>";
+    html += '<div class="total-box"><div class="k">Budget status</div><div class="v" style="color:var(--green)">On track</div></div>';
+    html += "</div>";
+    html += '<p class="kv" style="margin-top:14px">Questions about change orders or invoices? Contact your GC — contact details are on the Overview tab team list.</p>';
+    return html;
+  }
+  html += "<table><thead><tr><th>Category</th><th>Vendor</th><th class='num'>Budgeted</th><th class='num'>Spent</th><th class='num'>Remaining</th><th class='num'>Variance</th></tr></thead><tbody>";
+  p.budgetItems.forEach(function (i) {
+    var v = i.spent - i.budgeted;
+    html += "<tr><td>" + esc(i.category) + "</td><td>" + esc(i.vendor) + "</td>";
+    html += "<td class='num'>" + money(i.budgeted) + "</td><td class='num'>" + money(i.spent) + "</td>";
+    html += "<td class='num'>" + money(i.budgeted - i.spent) + "</td>";
+    html += "<td class='num " + (v > 0 ? "over" : "under") + "'>" + (v > 0 ? "+" : "") + money(v).replace("$-", "-$") + "</td></tr>";
+  });
+  html += "</tbody></table>";
+  html += '<div class="totals">';
+  html += '<div class="total-box"><div class="k">Total budgeted</div><div class="v">' + money(t.budgeted) + "</div></div>";
+  html += '<div class="total-box"><div class="k">Total spent</div><div class="v">' + money(t.spent) + "</div></div>";
+  html += '<div class="total-box"><div class="k">Remaining</div><div class="v">' + money(t.remaining) + "</div></div>";
+  html += '<div class="total-box"><div class="k">Over / under</div><div class="v" style="color:' + (t.variance > 0 ? "var(--red)" : "var(--green)") + '">' + (t.variance > 0 ? money(t.variance) + " over" : money(-t.variance) + " under") + "</div></div>";
+  html += "</div>";
+  return html;
+}
+
+function scheduleHTML(p) {
+  var html = readOnlyBanner();
+  var items = p.schedule.slice().sort(function (a, b) { return a.date < b.date ? -1 : 1; });
+  items.forEach(function (s) {
+    var cls = s.status === "Done" ? "st-done" : s.status === "Booked" ? "st-booked" : s.status === "Delayed" ? "st-delayed" : "st-pending";
+    html += '<div class="sched"><div class="date">' + esc(s.date) + "<br><span style='font-weight:600;color:var(--muted)'>" + esc(s.time) + '</span></div>';
+    html += '<div class="what"><div class="t">' + esc(s.trade) + " — " + esc(s.task) + '</div><div class="d">' + esc(s.vendor) + "</div></div>";
+    html += '<span class="status ' + cls + '">' + esc(s.status) + "</span></div>";
+  });
+  if (role().canEdit) {
+    html += "<h4 style='margin:22px 0 4px;color:var(--navy)'>Schedule a trade</h4>";
+    html += '<p style="font-size:13px;color:var(--muted);margin:0">Adds the visit to the schedule on this page.</p>';
+    html += '<form id="scheduleForm"><div class="form-grid">';
+    html += '<input type="text" id="sfTrade" placeholder="Trade (e.g. Electrical)" required>';
+    html += '<input type="text" id="sfVendor" placeholder="Vendor / company" required>';
+    html += '<input type="date" id="sfDate" required>';
+    html += '<input type="text" id="sfTask" placeholder="What are they doing?" required>';
+    html += '</div><button class="btn btn-navy" type="submit">Add to schedule</button></form>';
+  } else {
+    html += '<p style="font-size:13.5px;color:var(--muted);margin-top:16px">Scheduling is done by the GC. In the contractor view, a “Schedule a trade” form appears here.</p>';
+  }
+  return html;
+}
+
+function wireScheduleForm(p) {
+  var form = document.getElementById("scheduleForm");
+  if (!form) return;
+  form.addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    p.schedule.push({
+      date: document.getElementById("sfDate").value || "2026-11-12",
+      time: "9:00 AM",
+      trade: document.getElementById("sfTrade").value,
+      vendor: document.getElementById("sfVendor").value,
+      task: document.getElementById("sfTask").value,
+      status: "Booked"
+    });
+    renderAll();
+  });
+}
+
+/* ---------- PUBLIC CLIENT MODE ---------- */
+function showPublic() {
+  document.getElementById("appMain").classList.add("hidden");
+  document.getElementById("publicMain").classList.remove("hidden");
+  document.getElementById("gateBox").classList.remove("hidden");
+  document.getElementById("publicProject").classList.add("hidden");
+  document.getElementById("gateError").textContent = "";
+  document.getElementById("passcodeInput").value = "";
+}
+function hidePublic() {
+  document.getElementById("publicMain").classList.add("hidden");
+  document.getElementById("appMain").classList.remove("hidden");
+}
+function unlockPublic() {
+  var val = document.getElementById("passcodeInput").value.trim().toUpperCase();
+  if (val !== "GEM2026") {
+    document.getElementById("gateError").textContent = "That passcode did not match. Check the passcode shown below and try again.";
+    return;
+  }
+  var p = PROJECTS[0];
+  document.getElementById("gateBox").classList.add("hidden");
+  var box = document.getElementById("publicProject");
+  box.classList.remove("hidden");
+  var html = '<div class="detail"><div class="detail-head" style="padding-bottom:16px">';
+  html += '<div class="readonly-banner">Public client mode — read-only. You are seeing the client’s own project only: no budgets, no vendor costs, no other projects, no internal notes.</div>';
+  html += "<h3>" + esc(p.name) + "</h3>";
+  html += '<div class="addr">' + esc(p.address) + " · For: " + esc(p.client) + "</div>";
+  html += '<div class="bar" style="height:12px;margin-top:14px"><span style="width:' + p.progress + '%"></span></div>';
+  html += '<p class="kv"><b>' + p.progress + "% complete</b> · Current phase: <b>" + esc(p.phase) + "</b> · Target finish: <b>" + esc(p.target) + "</b></p>";
+  html += '<p class="kv">' + esc(p.description) + "</p>";
+  html += "<h4 style='color:var(--navy)'>What happens next</h4>";
+  p.schedule.filter(function (s) { return s.status === "Booked" || s.status === "Delayed" || s.status === "Pending"; }).forEach(function (s) {
+    html += '<div class="sched"><div class="date">' + esc(s.date) + '</div><div class="what"><div class="t">' + esc(s.trade) + '</div><div class="d">' + esc(s.task) + "</div></div></div>";
+  });
+  html += "<h4 style='color:var(--navy)'>Latest updates from your contractor</h4><ul class='updates' style='padding-left:18px'>";
+  p.updates.forEach(function (u) { html += "<li>" + esc(u.text) + ' <span class="when">— ' + esc(u.when) + "</span></li>"; });
+  html += "</ul>";
+  html += '<p style="margin-top:18px"><button id="publicExit" class="btn btn-navy" type="button">Exit public mode</button></p>';
+  html += "</div></div>";
+  box.innerHTML = html;
+  document.getElementById("publicExit").addEventListener("click", hidePublic);
+}
+
+/* ---------- WIRING ---------- */
+function renderAll() {
+  document.getElementById("roleNote").textContent = role().note;
+  document.getElementById("newProjectBtn").disabled = !role().canEdit;
+  document.getElementById("viewContractor").classList.toggle("active", state.view === "contractor");
+  document.getElementById("viewClient").classList.toggle("active", state.view === "client");
+  renderStats();
+  renderProjects();
+  renderDetail();
+}
+
+document.getElementById("roleSelect").addEventListener("change", function () {
+  state.role = this.value;
+  if (state.role === "homeowner") state.view = "client";
+  if (state.role === "owner" || state.role === "gc" || state.role === "admin") state.view = "contractor";
+  renderAll();
+});
+document.getElementById("viewContractor").addEventListener("click", function () {
+  state.view = "contractor";
+  if (state.role === "homeowner") { state.role = "gc"; document.getElementById("roleSelect").value = "gc"; }
+  renderAll();
+});
+document.getElementById("viewClient").addEventListener("click", function () {
+  state.view = "client";
+  state.role = "homeowner";
+  document.getElementById("roleSelect").value = "homeowner";
+  renderAll();
+});
+document.getElementById("tabBar").addEventListener("click", function (ev) {
+  var t = ev.target.getAttribute("data-tab");
+  if (t) { state.tab = t; renderDetail(); }
+});
+document.getElementById("newProjectBtn").addEventListener("click", function () {
+  alert("The New Project form (name, client, address, contract, start date) opens here in the full build.");
+});
+document.getElementById("publicModeBtn").addEventListener("click", showPublic);
+document.getElementById("gateBack").addEventListener("click", hidePublic);
+document.getElementById("gateSubmit").addEventListener("click", unlockPublic);
+document.getElementById("passcodeInput").addEventListener("keydown", function (ev) {
+  if (ev.key === "Enter") unlockPublic();
+});
+
+renderAll();
+</script>
+</body>
+</html>
