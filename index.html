@@ -108,6 +108,34 @@
   footer{max-width:1200px;margin:0 auto;padding:0 24px 36px;color:var(--muted);font-size:12.5px;line-height:1.6}
   .updates li{margin-bottom:8px;font-size:14px}
   .updates .when{color:var(--muted);font-size:12.5px}
+
+  .photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+  .photo-tile{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+  .photo-img{height:130px;display:flex;align-items:center;justify-content:center;font-size:44px;color:#fff}
+  .ph1{background:linear-gradient(135deg,#1a3a68,#3d6db5)} .ph2{background:linear-gradient(135deg,#5b4a1f,#c9a227)}
+  .ph3{background:linear-gradient(135deg,#234434,#1a7f4b)} .ph4{background:linear-gradient(135deg,#4a3049,#8a5a83)}
+  .ph5{background:linear-gradient(135deg,#37424f,#7d8ea3)} .ph6{background:linear-gradient(135deg,#6b3d1f,#b57608)}
+  .photo-tile img{width:100%;height:130px;object-fit:cover;display:block}
+  .photo-cap{padding:10px 12px}
+  .photo-cap .t{font-weight:700;font-size:13.5px}
+  .photo-cap .m{font-size:12px;color:var(--muted);margin-top:2px}
+  .upload-box{border:1.5px dashed var(--gold);background:#fffdf4;border-radius:10px;padding:16px;margin-bottom:18px}
+  .upload-box h4{margin:0 0 4px;color:var(--navy)}
+  .upload-box p{font-size:13px;color:var(--muted);margin:0 0 10px}
+  .tl-item{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}
+  .tl-dot{min-width:11px;height:11px;border-radius:50%;background:var(--gold);margin-top:5px}
+  .tl-item .when{min-width:96px;font-weight:700;font-size:12.5px;color:var(--navy)}
+  .tl-item .what .t{font-weight:700;font-size:14px}
+  .tl-item .what .d{font-size:13px;color:#475467}
+  .log-row{display:flex;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+  .log-row .when{min-width:96px;color:var(--muted);font-size:12.5px;font-weight:700}
+  .change{border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-bottom:10px}
+  .change .t{font-weight:700;font-size:14.5px}
+  .change .d{font-size:13px;color:#475467;margin-top:2px}
+  .change .m{font-size:12.5px;color:var(--muted);margin-top:5px}
+  .qa{border-left:4px solid var(--navy3);background:var(--bg);border-radius:6px;padding:10px 13px;margin-bottom:10px;font-size:13.5px}
+  .qa .q{font-weight:700}
+  .qa .a{color:#475467;margin-top:3px}
 </style>
 </head>
 <body>
@@ -161,8 +189,14 @@
     </div>
     <div class="tabs" id="tabBar">
       <button data-tab="overview" class="active" type="button">Overview</button>
+      <button data-tab="timeline" type="button">Timeline</button>
       <button data-tab="budget" type="button" id="budgetTabBtn">Budget</button>
       <button data-tab="schedule" type="button">Schedule</button>
+      <button data-tab="team" type="button">Team</button>
+      <button data-tab="photos" type="button">Photos</button>
+      <button data-tab="receipts" type="button" id="receiptsTabBtn">Receipts &amp; Docs</button>
+      <button data-tab="changes" type="button">Changes</button>
+      <button data-tab="logs" type="button" id="logsTabBtn">Logs</button>
     </div>
     <div class="tab-body" id="tabBody"></div>
   </section>
@@ -378,6 +412,134 @@ var PROJECTS = [
   }
 ];
 
+
+/* ---------- PASS-1 ADDITIONS: photos / receipts & docs / changes / Q&A / logs (clean demo data) ---------- */
+var EXTRA = {
+  "maple-kitchen": {
+    photos: [
+      { caption: "Framing and LVL beam install", when: "Oct 16, 2026", by: "Mike Donovan (GC)", icon: "🏗️", cls: "ph1", pub: true },
+      { caption: "Wall removed — kitchen opened to dining room", when: "Oct 16, 2026", by: "Mike Donovan (GC)", icon: "🧱", cls: "ph5", pub: true },
+      { caption: "Electrical rough-in, north wall", when: "Oct 19, 2026", by: "Dana Whitcomb", icon: "🔌", cls: "ph2", pub: false },
+      { caption: "Cabinets set and leveled", when: "Oct 24, 2026", by: "Merrimack Valley Cabinets", icon: "🗄️", cls: "ph3", pub: true },
+      { caption: "Quartz sample against cabinet door", when: "Oct 24, 2026", by: "Sarah Henderson", icon: "✨", cls: "ph4", pub: true },
+      { caption: "Temporary kitchen in the mudroom", when: "Sep 15, 2026", by: "Mike Donovan (GC)", icon: "🍳", cls: "ph6", pub: false }
+    ],
+    receipts: [
+      { when: "Oct 23, 2026", vendor: "Merrimack Valley Cabinets", item: "Cabinetry — final draw", amount: 9800, category: "Cabinetry" },
+      { when: "Oct 20, 2026", vendor: "Baron's Major Brands", item: "Range and dishwasher delivery", amount: 6450, category: "Appliances" },
+      { when: "Oct 15, 2026", vendor: "Capital Flooring, Concord", item: "LVP flooring — full order", amount: 6900, category: "Flooring (LVP)" }
+    ],
+    docs: [
+      { when: "Oct 18, 2026", name: "Engineer's letter — LVL beam (requested)", kind: "Permit" },
+      { when: "Sep 14, 2026", name: "Signed contract — Maple Street Kitchen Remodel", kind: "Contract" },
+      { when: "Sep 10, 2026", name: "City of Concord building permit", kind: "Permit" }
+    ],
+    changes: [
+      { title: "Add pot-filler faucet over the range", detail: "Homeowner request after plumbing rough-in started; added cold-water line and faucet.", cost: 850, status: "Approved", by: "Sarah & Tom Henderson", when: "Oct 21, 2026" },
+      { title: "Coffee bar nook — add dedicated outlet and shelf", detail: "Small electrical add and one floating shelf in the planned nook.", cost: 420, status: "Pending approval", by: "Tom Henderson", when: "Oct 25, 2026" }
+    ],
+    qa: [
+      { q: "Can we use the kitchen at all during countertop templating?", from: "Sarah Henderson", a: "Yes — templating takes about an hour and the temporary kitchen stays up until the counters are in.", by: "Mike Donovan (GC)", when: "Oct 25, 2026" },
+      { q: "Will the slab delay move our December finish?", from: "Tom Henderson", a: "Not if the slab lands by Nov 1 — cabinets and flooring continue in the meantime, so the finish date still holds.", by: "Mike Donovan (GC)", when: "Oct 24, 2026" }
+    ],
+    logs: [
+      { when: "Oct 24, 2026", actor: "Mike Donovan (GC)", action: "Updated progress to 62% and posted a client update" },
+      { when: "Oct 23, 2026", actor: "Merrimack Valley Cabinets", action: "Marked 'Cabinet install, day 1 of 2' complete on the schedule" },
+      { when: "Oct 21, 2026", actor: "Sarah Henderson", action: "Approved change order: pot-filler faucet (+$850)" },
+      { when: "Oct 19, 2026", actor: "Dana Whitcomb", action: "Uploaded 1 photo (electrical rough-in)" },
+      { when: "Oct 16, 2026", actor: "Mike Donovan (GC)", action: "Uploaded 6 photos (framing and LVL beam install)" }
+    ]
+  },
+  "winnipesaukee-deck": {
+    photos: [
+      { caption: "Old deck removed — clean site", when: "Oct 12, 2026", by: "Mike Donovan (GC)", icon: "🪚", cls: "ph6", pub: true },
+      { caption: "Footings poured and curing", when: "Oct 20, 2026", by: "Lakes Concrete", icon: "🧊", cls: "ph5", pub: true },
+      { caption: "Ledger and rim joists going on", when: "Oct 26, 2026", by: "Chris Beaulieu", icon: "🪵", cls: "ph1", pub: false },
+      { caption: "Lake view from the new deck line", when: "Oct 22, 2026", by: "Mike Donovan (GC)", icon: "🌅", cls: "ph2", pub: true }
+    ],
+    receipts: [
+      { when: "Oct 20, 2026", vendor: "Lakes Concrete, Meredith", item: "Footings and piers — pour", amount: 6450, category: "Footings & concrete piers" },
+      { when: "Oct 14, 2026", vendor: "Gilford Home Center", item: "Framing lumber and hardware", amount: 10900, category: "Framing lumber & hardware" }
+    ],
+    docs: [
+      { when: "Oct 3, 2026", name: "Town of Meredith shoreland permit — approved", kind: "Permit" },
+      { when: "Sep 28, 2026", name: "Signed contract — Lakeside Deck & Outdoor Living", kind: "Contract" }
+    ],
+    changes: [
+      { title: "Add storage bench along the lake side", detail: "Built-in composite bench with hinged storage for cushions and life jackets.", cost: 1150, status: "Approved", by: "The Ouellette Family", when: "Oct 22, 2026" }
+    ],
+    qa: [
+      { q: "Will the deck be usable for Thanksgiving weekend?", from: "The Ouellette Family", a: "That is the target — decking starts when the border color lands Oct 29, pergola and lighting follow.", by: "Mike Donovan (GC)", when: "Oct 23, 2026" }
+    ],
+    logs: [
+      { when: "Oct 26, 2026", actor: "Chris Beaulieu", action: "Started ledger, rim joists, and stair stringers" },
+      { when: "Oct 22, 2026", actor: "Mike Donovan (GC)", action: "Updated progress to 38%; blocker opened: composite shipment split" },
+      { when: "Oct 20, 2026", actor: "Lakes Concrete", action: "Marked footing pour complete; inspection passed" },
+      { when: "Oct 12, 2026", actor: "Mike Donovan (GC)", action: "Uploaded 4 photos (old deck removal)" }
+    ]
+  },
+  "portsmouth-addition": {
+    photos: [
+      { caption: "Existing rear elevation — before", when: "Oct 9, 2026", by: "Seacoast Design Group", icon: "🏠", cls: "ph5", pub: true },
+      { caption: "Historic district details to match", when: "Oct 9, 2026", by: "Mike Donovan (GC)", icon: "🏛️", cls: "ph4", pub: true },
+      { caption: "Site marked for utility locate", when: "Oct 26, 2026", by: "Harbor Excavation", icon: "🚩", cls: "ph2", pub: false }
+    ],
+    receipts: [
+      { when: "Oct 20, 2026", vendor: "Seacoast Design Group", item: "Final drawings and HDC review", amount: 14200, category: "Design, permits & HDC review" },
+      { when: "Oct 24, 2026", vendor: "Harbor Excavation", item: "Site prep — deposit", amount: 2500, category: "Site work & excavation" }
+    ],
+    docs: [
+      { when: "Oct 20, 2026", name: "Historic District Commission approval letter", kind: "Permit" },
+      { when: "Oct 9, 2026", name: "Final drawings — signed off by homeowner", kind: "Plans" },
+      { when: "Sep 30, 2026", name: "Signed contract — Primary Suite Addition", kind: "Contract" }
+    ],
+    changes: [
+      { title: "Mudroom half bath — swap to wall-hung sink", detail: "Frees floor space in a tight footprint; no plumbing layout change.", cost: 300, status: "Pending approval", by: "Ellen Marsh", when: "Oct 25, 2026" }
+    ],
+    qa: [
+      { q: "Will excavation be noisy for the neighbors on Middle Street?", from: "Ellen Marsh", a: "Digging runs weekdays 7:30–4:00 and wraps in about a week; we will give the abutters a heads-up letter first.", by: "Mike Donovan (GC)", when: "Oct 24, 2026" }
+    ],
+    logs: [
+      { when: "Oct 26, 2026", actor: "Harbor Excavation", action: "Marked the site for the Dig Safe utility locate" },
+      { when: "Oct 20, 2026", actor: "Mike Donovan (GC)", action: "Logged HDC approval; project phase set to Permits & Site Prep" },
+      { when: "Oct 9, 2026", actor: "Ellen Marsh", action: "Signed off on final drawings" }
+    ]
+  },
+  "keene-bath": {
+    photos: [
+      { caption: "Shower tile — before grout", when: "Oct 21, 2026", by: "Monadnock Tile & Stone", icon: "🚿", cls: "ph1", pub: true },
+      { caption: "Shower grouted and sealed", when: "Oct 24, 2026", by: "Monadnock Tile & Stone", icon: "✨", cls: "ph3", pub: true },
+      { caption: "Heated floor mat before tile", when: "Oct 15, 2026", by: "Mike Donovan (GC)", icon: "🔥", cls: "ph6", pub: false },
+      { caption: "Vanity and quartz top set", when: "Oct 23, 2026", by: "Pelletier Plumbing", icon: "🪞", cls: "ph4", pub: true }
+    ],
+    receipts: [
+      { when: "Oct 24, 2026", vendor: "Monadnock Tile & Stone", item: "Tile and waterproofing — final", amount: 12100, category: "Tile & waterproofing" },
+      { when: "Oct 22, 2026", vendor: "Keene Lighting / supply house", item: "Vanity, top, and fixtures", amount: 9350, category: "Vanity, top & fixtures" },
+      { when: "Oct 10, 2026", vendor: "Granite State Gem crew", item: "Contingency draw — portable wash station", amount: 1500, category: "Contingency" }
+    ],
+    docs: [
+      { when: "Sep 28, 2026", name: "Signed contract — Main Street Bathroom Renovation", kind: "Contract" },
+      { when: "Oct 24, 2026", name: "Punch list — walkthrough draft", kind: "Checklist" }
+    ],
+    changes: [
+      { title: "Temporary mirror until the lighted mirror arrives", detail: "No cost change — swap takes 20 minutes when the back-ordered mirror lands.", cost: 0, status: "Approved", by: "David & Priya Nair", when: "Oct 23, 2026" }
+    ],
+    qa: [
+      { q: "When can we shower in it again?", from: "Priya Nair", a: "After the 48-hour grout cure — so Oct 26 — and the portable station comes out the same day.", by: "Mike Donovan (GC)", when: "Oct 24, 2026" }
+    ],
+    logs: [
+      { when: "Oct 24, 2026", actor: "Monadnock Tile & Stone", action: "Marked grout and seal complete on the schedule" },
+      { when: "Oct 24, 2026", actor: "Mike Donovan (GC)", action: "Updated progress to 91%; phase set to Final Fixtures & Punch List" },
+      { when: "Oct 18, 2026", actor: "Mike Donovan (GC)", action: "Logged heated-floor test — warming evenly" }
+    ]
+  }
+};
+PROJECTS.forEach(function (p) {
+  var x = EXTRA[p.id] || {};
+  p.photos = x.photos || []; p.receipts = x.receipts || []; p.docs = x.docs || [];
+  p.changes = x.changes || []; p.qa = x.qa || []; p.logs = x.logs || [];
+});
+
 /* ---------- STATE & ROLE RULES ---------- */
 var state = { role: "gc", view: "contractor", selectedId: "maple-kitchen", tab: "overview" };
 
@@ -474,7 +636,12 @@ function renderDetail() {
   document.getElementById("detailSub").textContent =
     p.address + " · Client: " + p.client + " · " + p.start + " → " + p.target + " · Phase: " + p.phase;
   document.getElementById("budgetTabBtn").style.display = role().seeBudget ? "" : "none";
-  if (!role().seeBudget && state.tab === "budget") state.tab = "overview";
+  document.getElementById("receiptsTabBtn").style.display = role().seeBudget === true ? "" : "none";
+  document.getElementById("logsTabBtn").style.display = state.role === "homeowner" ? "none" : "";
+  var tabHidden = (state.tab === "budget" && !role().seeBudget) ||
+    (state.tab === "receipts" && role().seeBudget !== true) ||
+    (state.tab === "logs" && state.role === "homeowner");
+  if (tabHidden) state.tab = "overview";
   var tabs = document.querySelectorAll("#tabBar button");
   for (var i = 0; i < tabs.length; i++) {
     tabs[i].classList.toggle("active", tabs[i].getAttribute("data-tab") === state.tab);
@@ -482,8 +649,15 @@ function renderDetail() {
   var body = document.getElementById("tabBody");
   if (state.tab === "budget") body.innerHTML = budgetHTML(p);
   else if (state.tab === "schedule") body.innerHTML = scheduleHTML(p);
+  else if (state.tab === "timeline") body.innerHTML = timelineHTML(p);
+  else if (state.tab === "team") body.innerHTML = teamHTML(p);
+  else if (state.tab === "photos") body.innerHTML = photosHTML(p);
+  else if (state.tab === "receipts") body.innerHTML = receiptsHTML(p);
+  else if (state.tab === "changes") body.innerHTML = changesHTML(p);
+  else if (state.tab === "logs") body.innerHTML = logsHTML(p);
   else body.innerHTML = overviewHTML(p);
   wireScheduleForm(p);
+  wireUploadForm(p);
 }
 
 function readOnlyBanner() {
@@ -592,6 +766,146 @@ function wireScheduleForm(p) {
   });
 }
 
+
+/* ---------- PASS-1 TAB RENDERERS ---------- */
+function timelineHTML(p) {
+  var html = readOnlyBanner();
+  var items = [];
+  items.push({ d: Date.parse(p.start), when: p.start, t: "Project started", x: "Phase: " + p.phase + " · Contract " + (role().seeBudget ? money(p.contract) : "signed") });
+  p.schedule.forEach(function (sc) {
+    items.push({ d: Date.parse(sc.date), when: sc.date, t: sc.trade + " — " + sc.task, x: sc.vendor + " · " + sc.status });
+  });
+  p.updates.forEach(function (u) {
+    items.push({ d: Date.parse(u.when), when: u.when, t: "Update posted", x: u.text });
+  });
+  p.blockers.forEach(function (b) {
+    items.push({ d: Date.parse("2026-10-26") - parseInt(b.age, 10) * 86400000, when: "Open " + b.age, t: "Blocker: " + b.title, x: b.detail });
+  });
+  items.sort(function (a, b) { return b.d - a.d; });
+  html += '<div>';
+  items.forEach(function (it) {
+    html += '<div class="tl-item"><div class="tl-dot"></div><div class="when">' + esc(it.when) + '</div><div class="what"><div class="t">' + esc(it.t) + '</div><div class="d">' + esc(it.x) + "</div></div></div>";
+  });
+  html += "</div>";
+  return html;
+}
+
+function teamHTML(p) {
+  var html = readOnlyBanner();
+  html += '<p class="kv" style="margin-top:0">Everyone on this project, and what they own. <b>' + p.team.length + ' people and companies.</b></p>';
+  html += "<table><thead><tr><th>Name</th><th>Role</th><th>Company</th></tr></thead><tbody>";
+  p.team.forEach(function (m) {
+    html += "<tr><td><b>" + esc(m.name) + "</b></td><td>" + esc(m.role) + "</td><td>" + esc(m.company) + "</td></tr>";
+  });
+  html += "</tbody></table>";
+  html += '<p class="kv" style="margin-top:14px;color:var(--muted)">Contact details stay in the office address book — this tab is the who-does-what list for the job.</p>';
+  return html;
+}
+
+function photoTile(ph) {
+  var media = ph.img
+    ? '<img src="' + ph.img + '" alt="' + esc(ph.caption) + '">'
+    : '<div class="photo-img ' + (ph.cls || "ph1") + '">' + (ph.icon || "📷") + "</div>";
+  var vis = ph.pub ? '<span class="status st-done">Public — client sees this</span>' : '<span class="status st-pending">Internal</span>';
+  return '<div class="photo-tile">' + media + '<div class="photo-cap"><div class="t">' + esc(ph.caption) + '</div><div class="m">' + esc(ph.when) + " · " + esc(ph.by) + '</div><div style="margin-top:6px">' + vis + "</div></div></div>";
+}
+
+function photosHTML(p) {
+  var html = readOnlyBanner();
+  if (role().canEdit) {
+    html += '<div class="upload-box"><h4>Upload center</h4>';
+    html += '<p>One place for everything off the job site. Pick a file, tag it photo, receipt, or document — photos tagged public go straight to the client\u2019s progress page.</p>';
+    html += '<form id="uploadForm"><div class="form-grid">';
+    html += '<input type="file" id="ufFile" accept="image/*,.pdf">';
+    html += '<input type="text" id="ufCaption" placeholder="Caption / what is it?" required>';
+    html += '<select id="ufType"><option value="photo">Photo</option><option value="receipt">Receipt</option><option value="document">Document</option></select>';
+    html += '<input type="text" id="ufAmount" placeholder="Amount (receipts, e.g. 1250)">';
+    html += '</div><label style="font-size:13.5px"><input type="checkbox" id="ufPublic" checked> Public — show on the client progress page (photos)</label>';
+    html += '<div style="margin-top:10px"><button class="btn btn-navy" type="submit">Add to project</button></div></form></div>';
+  }
+  var list = state.role === "homeowner" ? p.photos.filter(function (x) { return x.pub; }) : p.photos;
+  html += '<h4 style="margin:0 0 12px;color:var(--navy)">Project photos (' + list.length + ")</h4>";
+  if (!list.length) html += '<p class="kv">No photos yet.</p>';
+  else { html += '<div class="photo-grid">'; list.forEach(function (ph) { html += photoTile(ph); }); html += "</div>"; }
+  if (state.role === "homeowner") html += '<p class="kv" style="margin-top:12px;color:var(--muted)">You see the photos your contractor marked public. Internal site photos stay with the crew.</p>';
+  return html;
+}
+
+function wireUploadForm(p) {
+  var form = document.getElementById("uploadForm");
+  if (!form) return;
+  form.addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    var caption = document.getElementById("ufCaption").value || "Untitled upload";
+    var type = document.getElementById("ufType").value;
+    var fileInput = document.getElementById("ufFile");
+    var file = fileInput && fileInput.files && fileInput.files[0];
+    var today = "Nov 5, 2026";
+    if (type === "receipt") {
+      var amt = parseFloat(document.getElementById("ufAmount").value) || 0;
+      p.receipts.unshift({ when: today, vendor: caption, item: file ? file.name : "Uploaded receipt", amount: amt, category: "—" });
+      state.tab = "receipts";
+    } else if (type === "document") {
+      p.docs.unshift({ when: today, name: caption, kind: "Document" });
+      state.tab = "receipts";
+    } else {
+      var entry = { caption: caption, when: today, by: role().label + " (you)", icon: "📷", cls: "ph1", pub: document.getElementById("ufPublic").checked };
+      if (file && file.type && file.type.indexOf("image/") === 0) entry.img = URL.createObjectURL(file);
+      p.photos.unshift(entry);
+      p.logs.unshift({ when: today, actor: role().label + " (you)", action: "Uploaded a photo: " + caption });
+    }
+    renderAll();
+  });
+}
+
+function receiptsHTML(p) {
+  var html = readOnlyBanner();
+  var total = 0; p.receipts.forEach(function (r) { total += r.amount; });
+  html += '<h4 style="margin:0 0 12px;color:var(--navy)">Receipts (' + p.receipts.length + ")</h4>";
+  html += "<table><thead><tr><th>Date</th><th>Vendor</th><th>Item</th><th>Budget category</th><th class='num'>Amount</th></tr></thead><tbody>";
+  p.receipts.forEach(function (r) {
+    html += "<tr><td>" + esc(r.when) + "</td><td>" + esc(r.vendor) + "</td><td>" + esc(r.item) + "</td><td>" + esc(r.category) + "</td><td class='num'>" + money(r.amount) + "</td></tr>";
+  });
+  html += "</tbody></table>";
+  html += '<div class="totals"><div class="total-box"><div class="k">Receipts on file</div><div class="v">' + money(total) + "</div></div></div>";
+  html += '<h4 style="margin:22px 0 10px;color:var(--navy)">Documents (' + p.docs.length + ")</h4>";
+  p.docs.forEach(function (d) {
+    html += '<div class="log-row"><div class="when">' + esc(d.when) + '</div><div>📄 <b>' + esc(d.name) + '</b> &nbsp;<span class="status st-booked">' + esc(d.kind) + "</span></div></div>";
+  });
+  return html;
+}
+
+function changesHTML(p) {
+  var html = readOnlyBanner();
+  html += '<h4 style="margin:0 0 12px;color:var(--navy)">Change orders (' + p.changes.length + ")</h4>";
+  if (!p.changes.length) html += '<p class="kv">No change orders on this project.</p>';
+  var approvedTotal = 0;
+  p.changes.forEach(function (c) {
+    if (c.status === "Approved") approvedTotal += c.cost;
+    var pill = c.status === "Approved" ? "st-done" : "st-pending";
+    html += '<div class="change"><div class="t">' + esc(c.title) + ' &nbsp;<span class="status ' + pill + '">' + esc(c.status) + "</span></div>";
+    html += '<div class="d">' + esc(c.detail) + "</div>";
+    html += '<div class="m">Requested by ' + esc(c.by) + " · " + esc(c.when) + (role().seeBudget === true ? " · Cost impact: <b>" + (c.cost ? "+" + money(c.cost) : "none") + "</b>" : "") + "</div></div>";
+  });
+  if (role().seeBudget === true && p.changes.length) html += '<div class="totals"><div class="total-box"><div class="k">Approved changes</div><div class="v">+' + money(approvedTotal) + "</div></div></div>";
+  html += '<h4 style="margin:22px 0 10px;color:var(--navy)">Questions &amp; answers</h4>';
+  if (!p.qa.length) html += '<p class="kv">No open questions.</p>';
+  p.qa.forEach(function (q) {
+    html += '<div class="qa"><div class="q">' + esc(q.q) + '</div><div style="font-size:12.5px;color:var(--muted)">' + esc(q.from) + " · " + esc(q.when) + '</div><div class="a"><b>' + esc(q.by) + ":</b> " + esc(q.a) + "</div></div>";
+  });
+  return html;
+}
+
+function logsHTML(p) {
+  var html = readOnlyBanner();
+  html += '<h4 style="margin:0 0 10px;color:var(--navy)">Activity log</h4>';
+  html += '<p class="kv" style="color:var(--muted)">Who did what on this project — the paper trail, without the paper.</p>';
+  p.logs.forEach(function (l) {
+    html += '<div class="log-row"><div class="when">' + esc(l.when) + "</div><div><b>" + esc(l.actor) + "</b> — " + esc(l.action) + "</div></div>";
+  });
+  return html;
+}
+
 /* ---------- PUBLIC CLIENT MODE ---------- */
 function showPublic() {
   document.getElementById("appMain").classList.add("hidden");
@@ -629,6 +943,12 @@ function unlockPublic() {
   html += "<h4 style='color:var(--navy)'>Latest updates from your contractor</h4><ul class='updates' style='padding-left:18px'>";
   p.updates.forEach(function (u) { html += "<li>" + esc(u.text) + ' <span class="when">— ' + esc(u.when) + "</span></li>"; });
   html += "</ul>";
+  var pubPhotos = p.photos.filter(function (x) { return x.pub; });
+  if (pubPhotos.length) {
+    html += "<h4 style='color:var(--navy)'>Latest photos from your project</h4><div class='photo-grid'>";
+    pubPhotos.forEach(function (ph) { html += photoTile(ph); });
+    html += "</div>";
+  }
   html += '<p style="margin-top:18px"><button id="publicExit" class="btn btn-navy" type="button">Exit public mode</button></p>';
   html += "</div></div>";
   box.innerHTML = html;

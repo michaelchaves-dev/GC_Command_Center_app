@@ -23,7 +23,7 @@ granitestategem.pplx.app), per
   remodel in Concord, deck build in Meredith, historic addition in
   Portsmouth, bathroom renovation in Keene), contracts in the
   $48,750–$285,000 range.
-- **Per-project tabs** — Overview / Budget / Schedule.
+- **Per-project tabs** — Overview / Timeline / Budget / Schedule / Team / Photos / Receipts & Docs / Changes / Logs (Pass 1, Nov 5, 2026: restored to match and extend the original Perplexity build's tab set — it had 8; this build keeps its Schedule tab too, for 9).
   - Overview: progress, phase, team, blockers (e.g. a delayed stone
     slab), recent updates.
   - Budget: line items by category/vendor with budgeted vs. spent,
@@ -68,7 +68,7 @@ python3 -m http.server 8000
 ```
 
 No dependencies, no install, no build step. All state is in-memory demo
-data in the page's JavaScript — refreshing resets any Schedule-a-Trade
+data in the page's JavaScript — refreshing resets any Schedule-a-Trade or Upload Center additions. The Upload Center (Photos tab) files uploads as photos, receipts, or documents; photos tagged public appear on the client's progress page and in Public Client Mode
 additions.
 
 ## Files
